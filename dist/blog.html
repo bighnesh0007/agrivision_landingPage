@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agri Web Blog</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Header styles */
+        header {
+            background-color: #15803d;
+            color: white;
+            padding: 1rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .nav-links {
+            display: none;
+        }
+        .nav-links a {
+            margin-left: 1rem;
+        }
+        .menu-icon {
+            display: block;
+            cursor: pointer;
+        }
+
+        /* Main content styles */
+        main {
+            flex-grow: 1;
+            padding: 2rem 0;
+        }
+        h2 {
+            font-size: 1.875rem;
+            margin-bottom: 1.5rem;
+        }
+        .blog-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        .blog-post {
+            background-color: white;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+        .blog-post:hover {
+            transform: scale(1.05);
+        }
+        .blog-post img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .blog-content {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .blog-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .blog-excerpt {
+            color: #666;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+        .blog-meta {
+            display: flex;
+            font-size: 0.875rem;
+            color: #888;
+            margin-bottom: 1rem;
+        }
+        .blog-meta span {
+            display: flex;
+            align-items: center;
+            margin-right: 1rem;
+        }
+        .blog-meta svg {
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.25rem;
+        }
+        .read-more-btn {
+            background-color: #15803d;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .read-more-btn:hover {
+            background-color: #166534;
+        }
+
+        /* Dialog styles */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .dialog-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .dialog {
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .dialog-overlay.active .dialog {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .dialog-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .dialog-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .dialog-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .dialog-content {
+            margin-bottom: 1rem;
+        }
+        .dialog-meta {
+            font-size: 0.875rem;
+            color: #888;
+        }
+
+        /* Footer styles */
+        .footer {
+            background-color: #166534;
+            color: white;
+            padding: 2rem 0;
+        }
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        .footer__title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: -0.5rem;
+        }
+        .col-6 {
+            width: 50%;
+            padding: 0.5rem;
+        }
+        .footer-card {
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            transition: background-color 0.3s;
+        }
+        .footer-card:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+        }
+        .youtube { background-color: #FF0000; }
+        .facebook { background-color: #1877F2; }
+        .telegram { background-color: #0088cc; }
+        .twitter { background-color: #1DA1F2; }
+        .footer-card__info {
+            font-size: 1rem;
+        }
+        .footer__subtitle {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer__subtitle-text {
+            font-size: 1rem;
+        }
+        .github {
+            fill: white;
+        }
+
+        /* Responsive styles */
+        @media (min-width: 640px) {
+            .blog-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (min-width: 768px) {
+            .nav-links {
+                display: flex;
+            }
+            .menu-icon {
+                display: none;
+            }
+            .col-md {
+                width: 25%;
+            }
+        }
+        @media (min-width: 1024px) {
+            .blog-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo" ><a href="index.html"> Agri Vision</a></div>
+                <div class="nav-links">
+                    <a href="/about">About Us</a>
+                    <a href="/statistics">Statistics</a>
+                    <a href="/blog">Govt Schemes</a>
+                </div>
+                <div class="menu-icon">&#9776;</div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h2>Latest Govt Schemes.</h2>
+            <div class="blog-grid">
+                <article class="blog-post">
+                    <img src="https://resize.indiatv.in/resize/newbucket/1200_-/2020/12/pmfby-1608695981.jpg?height=200&width=300" alt="PMFBY (Pradhan Mantri)">
+                    <div class="blog-content">
+                        <h3 class="blog-title">Pradhan Mantri Fasal Bima Yojana</h3>
+                        <p class="blog-excerpt">The PMFBY works on the One Nation, One Crop, One Premium.</p>
+                        <div class="blog-meta">
+                            <span>
+                                <jpg xmlns="https://resize.indiatv.in/resize/newbucket/1200_-/2020/12/pmfby-1608695981.jpg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </jpg>
+                                2023-02-18
+                            </span>
+                            <span>
+                                <jpg xmlns="https://resize.indiatv.in/resize/newbucket/1200_-/2020/12/pmfby-1608695981.jpg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </jpg>
+                                Ritik Singh 
+                            </span>
+                        </div>
+                        <button class="read-more-btn">Read More</button>
+                    </div>
+                </article>
+                <article class="blog-post">
+                    <img src="https://iasgyan.sgp1.digitaloceanspaces.com/images/Agriculture_Infrastructure_Fund.jpg?height=200&width=300" alt="Vertical Farming">
+                    <div class="blog-content">
+                        <h3 class="blog-title">Agri Infrastructure Fund Scheme</h3>
+                        <p class="blog-excerpt">To establish Cold stores, Warehousing, Silos, packing units etc.</p>
+                        <div class="blog-meta">
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                2023-08-20
+                            </span>
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                Amit Kumar
+                            </span>
+                        </div>
+                        <button class="read-more-btn">Read More</button>
+                    </div>
+                </article>
+                <article class="blog-post">
+                    <img src="https://aircargoupdate.com/wp-content/uploads/2022/06/Picture.png?height=200&width=300" alt="Kisan Udan Scheme">
+                    <div class="blog-content">
+                        <h3 class="blog-title">Krishi UDAN scheme</h3>
+                        <p class="blog-excerpt">The scheme aims to ensure seamless, cost-effective, time-bound air transportation and associated logistics for all Agri-produce</p>
+                        <div class="blog-meta">
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                2024-01-20
+                            </span>
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                Sanya Singh
+                            </span>
+                        </div>
+                        <button class="read-more-btn">Read More</button>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer__title">Follow us on</div>
+            <div class="row gy-2">
+                <div class="col-6 col-md">
+                    <a href="">
+                        <div class="footer-card">
+                            <div class="circle youtube footer-card__img">
+                                <svg width="40" fill="white">
+                                    <use xlink:href="#youtube"></use>
+                                </svg>
+                            </div>
+                            <div class="footer-card__info">Youtube</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-md">
+                    <a href="">
+                        <div class="footer-card">
+                            <div class="circle facebook footer-card__img">
+                                <svg width="40" fill="white">
+                                    <use xlink:href="#facebook"></use>
+                                </svg>
+                            </div>
+                            <div class="footer-card__info">Facebook</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-md">
+                    <a href="">
+                        <div class="footer-card">
+                            <div class="circle telegram footer-card__img">
+                                <svg width="40" fill="white">
+                                    <use xlink:href="#telegram"></use>
+                                </svg>
+                            </div>
+                            <div class="footer-card__info">Telegram</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-md">
+                    <a href="">
+                        <div class="footer-card">
+                            <div class="circle twitter footer-card__img">
+                                <svg width="40" fill="white">
+                                    <use xlink:href="#twitter"></use>
+                                </svg>
+                            </div>
+                            <div class="footer-card__info pe-4">Twitter</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="footer__subtitle">
+                <p class="footer__subtitle-text">Agri Vision Co.Ltd</p>
+                <a href="https://github.com/ShreyGrg03" target="_blank">
+                    <svg class="github" width="25" height="25">
+                        <use xlink:href="#github"></use>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <div class="dialog-overlay">
+        <div class="dialog">
+            <button class="dialog-close">&times;</button>
+            <img class="dialog-image" src="" alt="Blog post image">
+            <h3 class="dialog-title"></h3>
+            <div class="dialog-content"></div>
+            <div class="dialog-meta"></div>
+        </div>
+    </div>
+
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="youtube" viewBox="0 0 24 24">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </symbol>
+        <symbol id="facebook" viewBox="0 0 24 24">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </symbol>
+        <symbol id="telegram" viewBox="0 0 24 24">
+            <path d="M23.91 3.79L20.3 20.84c-.25 1.21-.98 1.5-2 .94l-5.5-4.07-2.66 2.57c-.3.3-.55.56-1.1.56-.72 0-.6-.27-.84-.95L6.3 13.7l-5.45-1.7c-1.18-.35-1.19-1.16.26-1.75l21.26-8.2c.97-.43 1.9.24 1.53 1.73z"/>
+        </symbol>
+        <symbol id="twitter" viewBox="0 0 24 24">
+            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+        </symbol>
+        <symbol id="github" viewBox="0 0 24 24">
+            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+        </symbol>
+    </svg>
+
+    <script>
+        document.querySelector('.menu-icon').addEventListener('click', function() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        const blogPosts = [
+            {
+                title: "Pradhan Mantri Fasal Bima Yojana",
+                excerpt: "To provide insurance coverage and financial support to the farmers in the event of failure of any of the notified crops as a result of natural calamities, pests & diseases.",
+                content: "The Scheme shall be implemented through a multi-agency framework by selected insurance companies under the overall guidance & control of the Department of Agriculture, Cooperation & Farmers Welfare (DAC&FW), Ministry of Agriculture & Farmers Welfare (MoA&FW), Government of India (GOI) and the concerned State in co-ordination with various other agencies; viz Financial Institutions like Commercial Banks, Co-operative Banks, Regional Rural Banks and their regulatory bodies, Government Departments viz. Agriculture, Co-operation, Horticulture, Statistics, Revenue, Information/Science & Technology, Panchayati Raj etc. The Scheme shall be implemented through a multi-agency framework by selected insurance companies under the overall guidance & control of the Department of Agriculture, Cooperation & Farmers Welfare (DAC&FW), Ministry of Agriculture & Farmers Welfare (MoA&FW), Government of India (GOI) and the concerned State in co-ordination with various other agencies; viz Financial Institutions like Commercial Banks, Co-operative Banks, Regional Rural Banks and their regulatory bodies, Government Departments viz. Agriculture, Co-operation, Horticulture, Statistics, Revenue, Information/Science & Technology, Panchayati Raj etc",
+
+                date: "2023-02-18",
+                author: "Ritik Singh ",
+                image: "https://resize.indiatv.in/resize/newbucket/1200_-/2020/12/pmfby-1608695981.jpg"
+            },
+            {
+                title: "Agri Infrastructure Fund Scheme",
+                excerpt: "The role of infrastructure is crucial for agriculture development and for taking the production dynamics to the next level.",
+                content: "It is only through the development of infrastructure, especially at the post harvest stage that the produce can be optimally utilized with opportunity for value addition and fair deal for the farmers. Development of such infrastructure shall also address the vagaries of nature, the regional disparities, development of human resource and realization of full potential of our limited land resource.In view of above, the Hon’ble Finance Minister announced on 15.05.2020, 1 lakh crore Agri Infrastructure Fund for farm-gate infrastructure for farmers. Financing facility of Rs. 1,00,000 crore will be provided for funding Agriculture Infrastructure Projects at farm-gate & aggregation points (Primary Agricultural Cooperative Societies, Farmers Producer Organizations, Agriculture entrepreneurs, Start-ups, etc.). Impetus for development of farm gate & aggregation point, affordable and financially viable Post Harvest Management infrastructure.",
+                date: "2023-08-20",
+                author: "Amit Kumar",
+                image: "https://pwonlyias.com/wp-content/uploads/2024/02/aif-scheme-65c0de22932ae-1568x882.webp"
+            },
+            {
+                title: " Krishi UDAN Scheme",
+                excerpt: "The scheme aims to ensure seamless, cost-effective, time-bound air transportation and associated logistics for all Agri-produce originating especially from Northeast, hilly and tribal regions of the country.",
+                content: "Krishi UDAN 2.0 lays out the vision of improving value realization through better integration and optimization of Agri-harvesting and air transportation and contributing to Agri-value chain sustainability and resilience under different and dynamic conditions. The scheme proposes to facilitating and incentivizing movement of Agri-produce by air transportation.  Primarily  the scheme was focusing on 25 airports of NER, Hilly and Tribal region namely Agartala, Agatti, Barapani, Dehradun, Dibrugarh, Dimapur, Gaggai, Imphal, Jammu, Jorhat, Kullu (Bhuntar), Leh, Lengpui, Lilabari, Pakyong, Pantnagar, Pithoragarh, Port Blair, Raipur, Ranchi, Rupsi, Shimla, Silchar, Srinagar and Tezu. Subsequently, other 28 Airports of Airports Authority of India(AAI), namely, Adampur (Jalandhar), Agra, Amritsar, Bagdogra, Bareilly, Bhuj, Chandigarh, Coimbatore, Goa, Corakhpur, Hindon, Indore, Jaisalmer, Jamnagar, Jodhpur, Kanpur (Chakeri), Kolkata, Nasik, Pathankot, Patna, Prayagraj, Pune, Rajkot, Tezpur, Trichy, Trivandrnm, Varanasi and Yisakhapatnam have been included in the Scheme.",
+                date: "2024-01-20",
+                author: "Sanya Singh
+                ",
+                image: "https://aircargoupdate.com/wp-content/uploads/2022/06/Picture.png"
+            }
+        ];
+
+        const dialogOverlay = document.querySelector('.dialog-overlay');
+        const dialog = document.querySelector('.dialog');
+        const dialogClose = document.querySelector('.dialog-close');
+        const dialogImage = document.querySelector('.dialog-image');
+        const dialogTitle = document.querySelector('.dialog-title');
+        const dialogContent = document.querySelector('.dialog-content');
+        const dialogMeta = document.querySelector('.dialog-meta');
+
+        function openDialog(post) {
+            dialogImage.src = post.image;
+            dialogImage.alt = post.title;
+            dialogTitle.textContent = post.title;
+            dialogContent.textContent = post.content;
+            dialogMeta.innerHTML = `
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    ${post.date}
+                </span>
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    ${post.author}
+                </span>
+            `;
+            dialogOverlay.classList.add('active');
+        }
+
+        function closeDialog() {
+            dialogOverlay.classList.remove('active');
+        }
+
+        document.querySelectorAll('.read-more-btn').forEach((btn, index) => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openDialog(blogPosts[index]);
+            });
+        });
+
+        dialogClose.addEventListener('click', closeDialog);
+        dialogOverlay.addEventListener('click', (e) => {
+            if (e.target === dialogOverlay) {
+                closeDialog();
+            }
+        });
+    </script>
+</body>
+</html>
